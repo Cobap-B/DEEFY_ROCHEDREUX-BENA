@@ -25,9 +25,6 @@ class Dispatcher{
                 </head>
                 <body>
                     <h1>DeffyApp</h1>
-            FIN;
-        if ($this->action != "sign"){
-            echo <<<FIN
                 <nav>
                     <ul>
                     <li><a href="?action=default">Acceuil</a></li>
@@ -40,13 +37,13 @@ class Dispatcher{
 
                     <li><a href="?action=sup-playlist">Sup Playlist</a></li>
 
+                    <li><a href="?action=sign">Sign in</a></li>
+
+                    <li><a href="?action=authentification">Authentification</a></li>
+
                     </ul>
                 </nav>
-                FIN;
-        }
-        echo <<<FIN
                 <br>
-                
                 $html
             </body>
         </html>
@@ -71,6 +68,10 @@ class Dispatcher{
             case 'sign' :
                 $a = new act\SignAction();
                 break ;
+            case 'authentification' :
+                    $a = new act\AuthentificationAction();
+                    break ;
+        
             default :
                 $a = new act\DefaultAction();
                 break;

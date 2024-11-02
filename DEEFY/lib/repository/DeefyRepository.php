@@ -1,15 +1,18 @@
 <?php
 namespace deefy\repository;
 use \deefy\audio\list\Playlist; 
+use \deefy\exception\AuthentificationException;
+
+use PDO;
 
 class DeefyRepository{
-    private \PDO $pdo;
+    private ?PDO $pdo;
     private static ?DeefyRepository $instance = null;
     private static array $config = [ ];
     
     private function __construct(array $conf) {
-        $this->pdo = new \PDO($conf['dsn'], $conf['user'], $conf['pass'],
-        [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
+        $this->pdo = new PDO($conf['dsn'], $conf['user'], $conf['pass'],
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     }
     public static function getInstance(){
         if (is_null(self::$instance)) {
@@ -31,7 +34,58 @@ class DeefyRepository{
     }
 
 
+
+    public function signIn(string $user, string $mdp){
+        $res = "Echec";
+        $min = 10;
+
+
+        $bd = $this->pdo;
+        $r = $bd->prepare('SELECT passwd FROM User WHERE email = ?');
+        $r->bindParam(1,$user);
+        $r->execute();
+        $d = $r->fetchall(PDO::FETCH_ASSOC);
+
+        if((strlen($mdp) >= $min)&&(sizeof($d)==0)){
     
+            $hash = password_hash($mdp, PASSWORD_DEFAULT,['cost'=>10]); //hash
+        
+            $insert = "INSERT into user (email, passwd) values(?,?)";
+            $r = $bd->prepare($insert);
+            $r->bindParam(1,$user);
+            $r->bindParam(2,$hash);
+            
+            if($r->execute()){
+                $res = "Bienvenu $user";
+            }
+        }
+        
+        //A changer
+        $data['role'] = 1;
+
+
+        $_SESSION['User']['name']=$user;
+        $_SESSION['User']['role']=$data['role'];
+        return $res;
+    }
+
+    public function authentification(string $user, string $mdp){
+        $bd = $this->pdo;
+
+        $r = $bd->prepare("SELECT passwd, role from User where email = ? ");
+        $r->bindParam(1,$user);
+        $bool = $r->execute();
+        $data =$r->fetch(PDO::FETCH_ASSOC);
+        $hash=$data['passwd'];
+        if (!password_verify($mdp, $hash)&&$bool)throw new AuthentificationException("Mot de passe Incorrect");
+
+        $_SESSION['User']['name']=$user;
+        $_SESSION['User']['role']=$data['role'];
+    }
+
+
+
+    //FONCTION A MODIF
     public function findPlaylistById(int $id): array
     {
         $stmt = self::getInstance()->prepare('SELECT * FROM playlist WHERE id = :id');
