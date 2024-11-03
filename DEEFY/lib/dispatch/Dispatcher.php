@@ -15,39 +15,36 @@ class Dispatcher{
             $this->action = "sign";
     }
 
-    private function renderPage(string $html){
+    private function renderPage(string $html): void
+    {
         echo <<<FIN
-            <?doctype>
-            <html lang="fr">
-                <head>
-                    <meta charset="UTD-8">
-                    <title>DEFI</title>
-                </head>
-                <body>
-                    <h1>DeffyApp</h1>
-                <nav>
-                    <ul>
-                    <li><a href="?action=default">Acceuil</a></li>
-
-                    <li><a href="?action=playlist">Affiche playlist</a></li>
-
-                    <li><a href="?action=add-playlist">Add playlist</a></li>
-
-                    <li><a href="?action=add-track">Add track</a></li>
-
-                    <li><a href="?action=sup-playlist">Sup Playlist</a></li>
-
-                    <li><a href="?action=sign">Sign in</a></li>
-
-                    <li><a href="?action=authentification">Authentification</a></li>
-
-                    </ul>
-                </nav>
-                <br>
-                $html
+        <!DOCTYPE html>
+        <html lang="fr">
+            <head>
+                <meta charset="UTF-8">
+                <title>DEFI</title>
+                <link rel="stylesheet" href="css/rendupage.css">
+            </head>
+            <body>
+                <div class="container">
+                    <h1 class="text-primary">DeffyApp</h1>
+                    <nav>
+                        <ul class="nav">
+                            <li class="nav-item"><a class="nav-link" href="?action=default">Accueil</a></li>
+                            <li class="nav-item"><a class="nav-link" href="?action=playlist">Afficher la playlist</a></li>
+                            <li class="nav-item"><a class="nav-link" href="?action=add-playlist">Ajouter une playlist</a></li>
+                            <li class="nav-item"><a class="nav-link" href="?action=add-track">Ajouter une track</a></li>
+                            <li class="nav-item"><a class="nav-link" href="?action=sup-playlist">Supprimer la Playlist</a></li>
+                            <li class="nav-item"><a class="nav-link" href="?action=sign">Se connecter</a></li>
+                            <li class="nav-item"><a class="nav-link" href="?action=authentification">Authentification</a></li>
+                        </ul>
+                    </nav>
+                    <br>
+                    $html
+                </div>
             </body>
         </html>
-        FIN;
+    FIN;
     }
     
     public function run(){

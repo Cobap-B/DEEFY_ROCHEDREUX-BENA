@@ -1,47 +1,119 @@
 <?php
 namespace deefy\action;
-use \deefy\audio\list\Playlist; 
+use \deefy\audio\list\Playlist;
 use \deefy\repository\DeefyRepository;
 
-class AddPlaylistAction extends Action{
-    public function execute(){
-        if ($this->http_method === "GET"){
+class AddPlaylistAction extends Action {
+    public function execute() {
+        if ($this->http_method === "GET") {
             return <<<FIN
-                <div>Ajouter une playlist : </div>
-
-                <form action="?action=add-playlist" method="post">
-                    Nom : <input type="text" name="nom">
-
-
-                    <input type="submit" value"Creer">
-                </form>
+                <!DOCTYPE html>
+                <html lang="fr">
+                    <head>
+                        <meta charset="UTF-8">
+                        <style>
+                            body {
+                                color: white;
+                                text-align: center;
+                            }
+                        </style><title> Ajouter Playlist</title>
+                    </head>
+                    <body>
+                        <div>Ajouter une playlist :</div>
+                        <form action="?action=add-playlist" method="post">
+                            Nom : <input type="text" name="nom">
+                            <input type="submit" value="Créer">
+                        </form>
+                    </body>
+                </html>
             FIN;
-        }else{
-            if (! isset($_SESSION["User"])){
-                return "<div> Il faut un compte </div>".'<a href="?action=authentification">Authentification</a>';
+        } else {
+            if (!isset($_SESSION["User"])) {
+                return <<<FIN
+                    <!DOCTYPE html>
+                    <html lang="fr">
+                        <head>
+                            <meta charset="UTF-8">
+                            <style>
+                                body {
+                                    color: white;
+                                    text-align: center;
+                                }
+                            </style> <title> Ajouter Playlist</title>
+                        </head>
+                        <body>
+                            <div>Il faut un compte</div>
+                            <a href="?action=authentification">Authentification</a>
+                        </body>
+                    </html>
+                FIN;
             }
-            if (isset($_POST["nom"])){
+            if (isset($_POST["nom"])) {
                 $name = filter_var($_POST["nom"], FILTER_SANITIZE_STRING);
-                if (! isset($_SESSION["Playlist"])){
-                    
+                if (!isset($_SESSION["Playlist"])) {
                     $pdo = DeefyRepository::getInstance();
-
-                    $id = $pdo->findLastIdPlaylist()+1;
-
-                    echo $id;
+                    $id = $pdo->findLastIdPlaylist() + 1;
 
                     $p = new Playlist($id, $name, []);
-                    $_SESSION["Playlist"]=  serialize($p);
+                    $_SESSION["Playlist"] = serialize($p);
 
                     $pdo->saveEmptyPlaylist($p);
 
-                    return "<div> Playlist $name créer </div>";
-                }else{
-                    $name =unserialize($_SESSION["Playlist"])->nom;
-                    return "<div> Playlist exist déjà : $name </div>";
+                    return <<<FIN
+                        <!DOCTYPE html>
+                        <html lang="fr">
+                            <head>
+                                <meta charset="UTF-8">
+                                <style>
+                                    body {
+                                        color: white;
+                                        text-align: center;
+                                    }
+                                </style> <title> Ajouter Playlist</title>
+                            </head>
+                            <body>
+                                <div>Playlist $name créée</div>
+                            </body>
+                        </html>
+                    FIN;
+                } else {
+                    $name = unserialize($_SESSION["Playlist"])->nom;
+                    return <<<FIN
+                        <!DOCTYPE html>
+                        <html lang="fr">
+                            <head>
+                                <meta charset="UTF-8">
+                                <style>
+                                    body {
+                                        color: white;
+                                        text-align: center;
+                                    }
+                                </style> <title> Ajouter Playlist</title>
+                            </head>
+                            <body>
+                                <div>Playlist déjà existante : $name</div>
+                            </body>
+                        </html>
+                    FIN;
                 }
-            }else{
-                return "<div> Nom invalide  </div>";
+            } else {
+                return <<<FIN
+                    <!DOCTYPE html>
+                    <html lang="fr">
+                        <head>
+                            <meta charset="UTF-8">
+                            <style>
+                                body {
+                                    color: white;
+                                    text-align: center;
+                                }
+                            </style> <title> Ajouter Playlist</title>
+                        </head>
+                        <body>
+                            <div>Nom invalide</div>
+                        </body>
+                    </html>
+                FIN;
             }
         }
     }
