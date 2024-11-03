@@ -35,8 +35,8 @@ class Dispatcher{
                             <li class="nav-item"><a class="nav-link" href="?action=add-playlist">Ajouter une playlist</a></li>
                             <li class="nav-item"><a class="nav-link" href="?action=add-track">Ajouter une track</a></li>
                             <li class="nav-item"><a class="nav-link" href="?action=sup-playlist">Supprimer la Playlist</a></li>
-                            <li class="nav-item"><a class="nav-link" href="?action=sign">Se connecter</a></li>
-                            <li class="nav-item"><a class="nav-link" href="?action=authentification">Authentification</a></li>
+                            <li class="nav-item"><a class="nav-link" href="?action=sign">Creer un compter</a></li>
+                            <li class="nav-item"><a class="nav-link" href="?action=authentification">Se connecter</a></li>
                         </ul>
                     </nav>
                     <br>

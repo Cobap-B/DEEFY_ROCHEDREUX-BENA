@@ -6,87 +6,83 @@ use \deefy\repository\DeefyRepository;
 
 class AddPodcastTrackAction extends Action {
     public function execute() {
-        if ($this->http_method === "GET") {
-            return <<<FIN
-                <!DOCTYPE html>
-                <html lang="fr">
-                    <head>
-                        <meta charset="UTF-8">
-                        <style>
-                            body {
-                                color: white;
-                                text-align: center;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div>Ajouter un audio :</div>
-                        <form action="?action=add-track" method="post" enctype="multipart/form-data">
-                            Titre : <input type="text" name="nom"><br><br>
-                            Fichier : <input type="file" name="audio" accept="audio/mpeg"/>
-                            <br><br>
-                            <input type="submit" value="Créer">
-                        </form>
-                    </body>
-                </html>
-            FIN;
-        } else {
-            $html = "";
-            if (!isset($_SESSION["User"])) {
-                $html = "<div> Il faut un compte </div><a href='?action=authentification'>Authentification</a>";
-            } elseif (isset($_POST["nom"]) && isset($_FILES['audio'])) {
-                $name = filter_var($_POST["nom"], FILTER_SANITIZE_STRING);
-
-                if (!isset($_SESSION["Playlist"])) {
-                    $html = "<div> Aucune playlist créée </div><a href='?action=add-playlist'>Ajouter une playlist</a>";
-                } else {
-                    if ($_FILES['audio']['type'] === 'audio/mpeg') {
-                        $upload_dir = 'audio/';
-                        $tmp = $_FILES['audio']['tmp_name'];
-
-                        if ($_FILES['audio']['error'] === UPLOAD_ERR_OK) {
-                            $dest = $upload_dir . $_FILES['audio']['name'];
-                            move_uploaded_file($tmp, $dest);
-                        }
-                    }
-
-                    $playlist = unserialize($_SESSION["Playlist"]);
-                    $pdo = DeefyRepository::getInstance();
-                    $id = $pdo->findLastIdTrack() + 1;
-                    $track = new PodcastTrack($id, $name, "audio/" . $_FILES['audio']['name']);
-
-                    $playlist->addPiste($track);
-                    $_SESSION['Playlist'] = serialize($playlist);
-
-                    $pdo->saveTrack($track);
-                    $pdo->addTrackToPlaylist($id, $playlist->__get("ID"));
-
-                    $html = <<<FIN
-                        <div> Ajout de $name réussi </div>
-                        <a href="?action=add-track">Ajouter un nouveau morceau</a>
-                    FIN;
+        $html = '
+        <!DOCTYPE html>
+                    <html lang="fr">
+                        <head>
+                            <meta charset="UTF-8">
+                            <style>
+                                body {
+                                    color: white;
+                                    text-align: center;
+                                }
+                            </style>
+                        </head>';
+        $pdo = DeefyRepository::getInstance();
+        $pl = $pdo->findAllPlaylists();
+        if(count($pl)==0){
+            $html .= "<p>Aucune playlist créer</p> <a href='?action=add-playlist'>Créer une playlist</a>";
+        }else{
+            if ($this->http_method === "GET") {
+                $html .= '<body><div>Ajouter un audio :</div>
+                <form action="?action=add-track" method="post" enctype="multipart/form-data">
+                Playlist : <select name="Playlist" size="1">';
+                foreach($pl as $p){
+                    $id = $p->__get("ID");
+                    $name = $p->__get("nom");
+                    $html .= "<option value='$id'> $name </option>"; 
                 }
-            } else {
-                $html = "<div> Nom invalide </div><a href='?action=add-track'>Ajouter un nouveau morceau</a>";
-            }
+                $html .= '</select><br><br>';
+               
+                $html .= '
+                        Titre : <input type="text" name="nom"><br><br>
+                        Fichier : <input type="file" name="audio" accept="audio/mpeg"/>
+                        <br><br>';            
+                $html .= '<input type="submit" value="Créer"></form></body>';
 
-            return <<<FIN
-                <!DOCTYPE html>
-                <html lang="fr">
-                    <head>
-                        <meta charset="UTF-8">
-                        <style>
-                            body {
-                                color: white;
-                                text-align: center;
+            } else {
+                $html .= "";
+                if (!isset($_SESSION["User"])) {
+                    $html .= "<body><div> Il faut un compte </div><a href='?action=authentification'>Se connecter</a></body>";
+                } elseif (isset($_POST["nom"]) && isset($_FILES['audio'])) {
+                    $name = filter_var($_POST["nom"], FILTER_SANITIZE_STRING);
+                    $playlist = $pdo->findPlaylistById($_POST["Playlist"]);
+                    if (! isset($playlist)) {
+                        $html .= "<body><div> Aucune playlist selectionner ??? </div><a href='?action=add-playlist'>Ajouter une playlist</a></body>";
+                    } else {
+                        if ($_FILES['audio']['type'] === 'audio/mpeg') {
+                            $upload_dir = 'audio/';
+                            $tmp = $_FILES['audio']['tmp_name'];
+
+                            if ($_FILES['audio']['error'] === UPLOAD_ERR_OK) {
+                                $dest = $upload_dir . $_FILES['audio']['name'];
+                                move_uploaded_file($tmp, $dest);
                             }
-                        </style>
-                    </head>
-                    <body>
-                        $html
-                    </body>
-                </html>
-            FIN;
+                        }
+
+                        
+                        $pdo = DeefyRepository::getInstance();
+                        $id = $pdo->findLastIdTrack() + 1;
+                        $track = new PodcastTrack($id, $name, "audio/" . $_FILES['audio']['name']);
+
+                        $playlist->addPiste($track);
+                        $_SESSION['Playlist'] = serialize($playlist);
+
+                        $pdo->saveTrack($track);
+                        $pdo->addTrackToPlaylist($id, $playlist->__get("ID"));
+
+                        $html .="<body>
+                                <div> Ajout de $name réussi </div>
+                                <a href='?action=add-track'>Ajouter un nouveau morceau</a>
+                            </body>
+                        ";
+                    }
+                } else {
+                    $html .= "<body><div> Nom invalide </div><a href='?action=add-track'>Ajouter un nouveau morceau</a></body>";
+                }
+            }
         }
+        $html .= "</html>";
+        return $html;
     }
 }

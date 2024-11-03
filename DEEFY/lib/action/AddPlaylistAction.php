@@ -43,59 +43,40 @@ class AddPlaylistAction extends Action {
                         </head>
                         <body>
                             <div>Il faut un compte</div>
-                            <a href="?action=authentification">Authentification</a>
+                            <a href="?action=authentification">Se connecter</a>
                         </body>
                     </html>
                 FIN;
             }
             if (isset($_POST["nom"])) {
                 $name = filter_var($_POST["nom"], FILTER_SANITIZE_STRING);
-                if (!isset($_SESSION["Playlist"])) {
-                    $pdo = DeefyRepository::getInstance();
-                    $id = $pdo->findLastIdPlaylist() + 1;
+    
+                $pdo = DeefyRepository::getInstance();
+                $id = $pdo->findLastIdPlaylist() + 1;
 
-                    $p = new Playlist($id, $name, []);
-                    $_SESSION["Playlist"] = serialize($p);
+                $p = new Playlist($id, $name, []);
+                $_SESSION["Playlist"] = serialize($p);
 
-                    $pdo->saveEmptyPlaylist($p);
+                $pdo->saveEmptyPlaylist($p);
 
-                    return <<<FIN
-                        <!DOCTYPE html>
-                        <html lang="fr">
-                            <head>
-                                <meta charset="UTF-8">
-                                <style>
-                                    body {
-                                        color: white;
-                                        text-align: center;
-                                    }
-                                </style> <title> Ajouter Playlist</title>
-                            </head>
-                            <body>
-                                <div>Playlist $name créée</div>
-                            </body>
-                        </html>
-                    FIN;
-                } else {
-                    $name = unserialize($_SESSION["Playlist"])->nom;
-                    return <<<FIN
-                        <!DOCTYPE html>
-                        <html lang="fr">
-                            <head>
-                                <meta charset="UTF-8">
-                                <style>
-                                    body {
-                                        color: white;
-                                        text-align: center;
-                                    }
-                                </style> <title> Ajouter Playlist</title>
-                            </head>
-                            <body>
-                                <div>Playlist déjà existante : $name</div>
-                            </body>
-                        </html>
-                    FIN;
-                }
+                return <<<FIN
+                    <!DOCTYPE html>
+                    <html lang="fr">
+                        <head>
+                            <meta charset="UTF-8">
+                            <style>
+                                body {
+                                    color: white;
+                                    text-align: center;
+                                }
+                            </style> <title> Ajouter Playlist</title>
+                        </head>
+                        <body>
+                            <div>Playlist $name créée</div>
+                        </body>
+                    </html>
+                FIN;
+            
             } else {
                 return <<<FIN
                     <!DOCTYPE html>

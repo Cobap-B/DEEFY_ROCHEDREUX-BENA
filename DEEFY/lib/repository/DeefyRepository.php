@@ -2,6 +2,7 @@
 namespace deefy\repository;
 use \deefy\audio\list\Playlist; 
 use \deefy\exception\AuthentificationException;
+use \deefy\audio\track\PodcastTrack;
 
 use PDO;
 
@@ -101,20 +102,39 @@ class DeefyRepository{
     }
 
 
-    public function findPlaylistById(int $id): array
+    public function findPlaylistById(int $id)
     {
         $stmt = $this->pdo->prepare('SELECT * FROM playlist WHERE id = :id');
-        $stmt->execute(['id' => $id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch();
+        $id_pl = $row['id'];
+        $name_pl = $row['nom'];
+
+        $stmt = $this->pdo->prepare("SELECT id, titre, filename FROM track INNER JOIN playlist2track on track.id = playlist2track.id_track where playlist2track.id_pl = :id");
+        $stmt->bindValue(':id', $id_pl, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $tracks = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $track =  $track = new PodcastTrack($row['id'], $row['titre'], "audio/" . $row['filename']);
+            $tracks[] = $track;
+        }
+        $pl = new Playlist($id_pl, $name_pl, $tracks);
+
+
+        return $pl;
     }
 
     public function findAllPlaylists(): array {
-        $stmt = $this->pdo->prepare("SELECT * FROM playlist");
+        $stmt = $this->pdo->prepare("SELECT * FROM playlist INNER JOIN user2playlist on playlist.id = user2playlist.id_pl where user2playlist.id_user = :id_user");
+        $stmt->bindValue(':id_user', $_SESSION['User']['id'], PDO::PARAM_INT);
+        
         $stmt->execute();
 
         $playlists = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            // Assure-toi que le constructeur de Playlist prend bien id et name
             $playlist = new Playlist($row['id'], $row['nom']);
             $playlists[] = $playlist;
         }

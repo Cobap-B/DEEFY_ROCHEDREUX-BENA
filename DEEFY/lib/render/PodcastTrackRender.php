@@ -6,7 +6,7 @@ class PodcastTrackRender extends AudioTrackRender{
     public function renderLong(){
         $html = "";
         $html.= ('<pre>');
-        var_dump($this->album);
+        //var_dump($this->album);
         $html.= <<<FIN
                 <audio controls>
                     <source src="$this->album->nomFichier" type = "audio/mpeg">

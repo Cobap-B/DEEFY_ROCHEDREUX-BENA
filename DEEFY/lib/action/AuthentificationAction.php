@@ -20,7 +20,7 @@ class AuthentificationAction extends Action {
                         </style>
                     </head>
                     <body>
-                        <div>Authentification : </div>
+                        <div> Se connecter : </div>
                         <form action="?action=authentification" method="post">
                             Identifiant : <input type="text" name="nom"><br>
                             Mot de passe : <input type="text" name="mdp"><br>

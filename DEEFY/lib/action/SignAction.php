@@ -22,11 +22,11 @@ class SignAction extends Action{
                         }
                     </style> 
                     
-                    <title> Connexion </title>
+                    <title> Compte </title>
                 </head>
                 <body>
                     <div>
-                        <h2>Se connecter</h2>
+                        <h2>Creer un compte</h2>
                         <form action="?action=sign" method="post">
                             Identifiant : <input type="text" name="nom"><br>
                             Mot de passe : <input type="password" name="mdp"><br>
