@@ -4,6 +4,7 @@ namespace deefy\audio\tracks;
 use \deefy\exception\InvalidPropertyNameExcepetion;
 
 abstract class AudioTrack{
+    protected int $ID;
     protected string $titre;
     protected string $artiste;
     protected string $année;
@@ -11,10 +12,12 @@ abstract class AudioTrack{
     protected int $duree;  
     protected string $nomFichier;
 
-    public function __construct(string $titre, string $nom) {
+    public function __construct(int $id, string $titre, string $nom) {
+        $this->ID = $id;
         $this->titre = $titre;
         $this->nomFichier = $nom;
         $this->duree = 1;
+        $this->genre = "";
     }
 
     function __toString():string{

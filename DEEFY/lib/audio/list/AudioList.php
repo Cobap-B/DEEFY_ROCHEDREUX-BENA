@@ -8,9 +8,11 @@ class AudioList{
     protected int $taille;
     protected int $duree;
     protected array $list;
+    protected int $ID;
 
 
-    public function __construct(string $nom, array $tab = []) {
+    public function __construct(int $id, string $nom, array $tab = []) {
+        $this->ID = $id;
         $this->nom = $nom;
         $this->taille = sizeof($tab);
         $d = 0;

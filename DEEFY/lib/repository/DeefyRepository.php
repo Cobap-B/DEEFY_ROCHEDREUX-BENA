@@ -64,6 +64,8 @@ class DeefyRepository{
         $data['role'] = 1;
 
 
+        $id = $bd->lastInsertId();
+        $_SESSION['User']['id']=$id;
         $_SESSION['User']['name']=$user;
         $_SESSION['User']['role']=$data['role'];
         return $res;
@@ -72,29 +74,42 @@ class DeefyRepository{
     public function authentification(string $user, string $mdp){
         $bd = $this->pdo;
 
-        $r = $bd->prepare("SELECT passwd, role from User where email = ? ");
+        $r = $bd->prepare("SELECT id, passwd, role from User where email = ? ");
         $r->bindParam(1,$user);
         $bool = $r->execute();
         $data =$r->fetch(PDO::FETCH_ASSOC);
         $hash=$data['passwd'];
         if (!password_verify($mdp, $hash)&&$bool)throw new AuthentificationException("Mot de passe Incorrect");
 
+        $_SESSION['User']['id']=$data['id'];
         $_SESSION['User']['name']=$user;
         $_SESSION['User']['role']=$data['role'];
     }
 
 
+    //Pas la meilleur facon de faire
+    public function findLastIdTrack():int{
+        $stmt = $this->pdo->prepare('SELECT max(id) as ID from track');
+        $stmt->execute();
+        return $stmt->fetch()['ID'];
+    }
 
-    //FONCTION A MODIF
+    public function findLastIdPlaylist():int{
+        $stmt = $this->pdo->prepare('SELECT max(id) as ID from playlist');
+        $stmt->execute();
+        return $stmt->fetch()['ID'];
+    }
+
+
     public function findPlaylistById(int $id): array
     {
-        $stmt = self::getInstance()->prepare('SELECT * FROM playlist WHERE id = :id');
+        $stmt = $this->pdo->prepare('SELECT * FROM playlist WHERE id = :id');
         $stmt->execute(['id' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function findAllPlaylists(): array {
-        $stmt = self::getInstance()->prepare("SELECT * FROM playlist");
+        $stmt = $this->pdo->prepare("SELECT * FROM playlist");
         $stmt->execute();
 
         $playlists = [];
@@ -108,25 +123,33 @@ class DeefyRepository{
 
 
     public function saveEmptyPlaylist(Playlist $playlist): bool {
-        $stmt = self::getInstance()->prepare(
-            "INSERT INTO playlist (nom, description) VALUES (:name, :description)"
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO playlist (id, nom) VALUES (:id, :nom)"
         );
-        $stmt->bindValue(':nom', $playlist->getNom(), PDO::PARAM_STR);
-        $stmt->bindValue(':description', $playlist->getDescription(), PDO::PARAM_STR); // Ajout de description
+        $stmt->bindValue(':id', $playlist->__get("ID"), PDO::PARAM_INT);
+        $stmt->bindValue(':nom', $playlist->__get("nom"), PDO::PARAM_STR);
+        $stmt->execute();
+
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO user2playlist (id_user, id_pl) VALUES (:id_user, :id_pl)"
+        );
+        $stmt->bindValue(':id_user',$_SESSION['User']['id'], PDO::PARAM_INT);
+        $stmt->bindValue(':id_pl',$playlist->__get("ID"), PDO::PARAM_INT);
         return $stmt->execute();
     }
 
 
-    public function saveTrack(AudioTrack $track): bool
+    public function saveTrack($track): bool
     {
-        $pdo = self::getInstance();
+        $pdo = $this->pdo;
 
-        $stmt = $pdo->prepare("INSERT INTO track (titre, genre, duree, nomFichier) VALUES (:titre, :genre, :duree, :nomFichier)");
+        $stmt = $pdo->prepare("INSERT INTO track (id, titre, genre, duree, filename) VALUES (:id, :titre, :genre, :duree, :filename)");
 
-        $stmt->bindValue(':titre', $track->getTitre(), PDO::PARAM_STR);
-        $stmt->bindValue(':genre', $track->getGenre(), PDO::PARAM_INT);
-        $stmt->bindValue(':duree', $track->getDuree(), PDO::PARAM_STR);
-        $stmt->bindValue(':filename', $track->getNomFichier(), PDO::PARAM_STR);
+        $stmt->bindValue(':id', $track->__get("ID"), PDO::PARAM_INT);
+        $stmt->bindValue(':titre', $track->__get("titre"), PDO::PARAM_STR);
+        $stmt->bindValue(':genre', $track->__get("genre"), PDO::PARAM_INT);
+        $stmt->bindValue(':duree', $track->__get("duree"), PDO::PARAM_STR);
+        $stmt->bindValue(':filename', $track->__get("nomFichier"), PDO::PARAM_STR);
 
         return $stmt->execute();
     }
@@ -134,13 +157,42 @@ class DeefyRepository{
 
     public function addTrackToPlaylist(int $trackId, int $playlistId): bool
     {
-        $pdo = DeefyRepository::getInstance();
+        $pdo = $this->pdo;
 
         $stmt = $pdo->prepare("INSERT INTO playlist2track (id_pl, id_track) VALUES (:playlistId, :trackId)");
 
-        $stmt->bindValue(':id_pl', $playlistId, PDO::PARAM_INT);
-        $stmt->bindValue(':id_track', $trackId, PDO::PARAM_INT);
+        $stmt->bindValue(':playlistId', $playlistId, PDO::PARAM_INT);
+        $stmt->bindValue(':trackId', $trackId, PDO::PARAM_INT);
 
+        return $stmt->execute();
+    }
+
+    public function supPlaylist(int $playlistId): bool
+    {
+        $pdo = $this->pdo;
+
+        $stmt = $pdo->prepare("SELECT id_track from playlist2track where id_pl = :id_pl");
+        $stmt->bindValue(':id_pl', $playlistId, PDO::PARAM_INT);
+        $stmt->execute();
+        $ar = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $stmt = $pdo->prepare("DELETE from playlist2track where id_pl = :id_pl");
+        $stmt->bindValue(':id_pl', $playlistId, PDO::PARAM_INT);
+        $stmt->execute();
+        if ($ar){
+            foreach($ar as $id){
+                $stmt = $pdo->prepare("DELETE from track where id =:id");
+                $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+                $stmt->execute();
+            }
+        }
+        $stmt = $pdo->prepare("DELETE from user2playlist where id_user = :id_user and id_pl = :id_pl");
+        $stmt->bindValue(':id_user', $_SESSION['User']['id'], PDO::PARAM_INT);
+        $stmt->bindValue(':id_pl', $playlistId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $stmt = $pdo->prepare("DELETE from playlist where id = :id_pl");
+        $stmt->bindValue(':id_pl', $playlistId, PDO::PARAM_INT);
         return $stmt->execute();
     }
 

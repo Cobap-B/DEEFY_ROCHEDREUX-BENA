@@ -1,5 +1,6 @@
 <?php
 namespace deefy\action;
+use \deefy\repository\DeefyRepository;
 
 class SupPlaylistAction extends Action{
     public function execute(){
@@ -19,6 +20,10 @@ class SupPlaylistAction extends Action{
             }
             return $html;
         }else{
+
+            $pdo = DeefyRepository::getInstance();
+
+            $pdo->supPlaylist(unserialize($_SESSION["Playlist"])->__get("ID"));
             $_SESSION["Playlist"] = null;
             return "<div> Playlist supprimer </div>";
         }

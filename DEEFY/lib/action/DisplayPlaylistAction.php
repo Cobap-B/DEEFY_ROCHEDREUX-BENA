@@ -7,7 +7,7 @@ class DisplayPlaylistAction extends Action{
     public function execute(){
         $html = "";
         if (isset($_SESSION["Playlist"])){
-            $playlist = $_SESSION["Playlist"];
+            $playlist = unserialize($_SESSION["Playlist"]);
             $render = new AudioListRender($playlist);
             
             $html = $render->render(2);
