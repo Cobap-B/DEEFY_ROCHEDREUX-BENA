@@ -45,7 +45,8 @@ class SignAction extends Action{
 
             if($mdp === $mdp2){
                 $r = DeefyRepository::getInstance();
-                $res = "<p>Connexion réussie !</p>";
+                $res = $r->signIn($nom, $mdp);
+                $res = "<p>$res</p>";
             } else {
                 $res = <<<FIN
                 <!DOCTYPE html>

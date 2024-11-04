@@ -63,8 +63,6 @@ class DeefyRepository{
         
         //A changer
         $data['role'] = 1;
-
-
         $id = $bd->lastInsertId();
         $_SESSION['User']['id']=$id;
         $_SESSION['User']['name']=$user;
@@ -78,7 +76,8 @@ class DeefyRepository{
         $r = $bd->prepare("SELECT id, passwd, role from User where email = ? ");
         $r->bindParam(1,$user);
         $bool = $r->execute();
-        $data =$r->fetch(PDO::FETCH_ASSOC);
+        $data = $r->fetch(PDO::FETCH_ASSOC);
+        if (! isset($data) || $data == false) throw new AuthentificationException("Mail pas bon");
         $hash=$data['passwd'];
         if (!password_verify($mdp, $hash)&&$bool)throw new AuthentificationException("Mot de passe Incorrect");
 
@@ -89,6 +88,7 @@ class DeefyRepository{
 
 
     //Pas la meilleur facon de faire
+    //Utiliser LastInsertId !!!
     public function findLastIdTrack():int{
         $stmt = $this->pdo->prepare('SELECT max(id) as ID from track');
         $stmt->execute();
@@ -128,11 +128,16 @@ class DeefyRepository{
     }
 
     public function findAllPlaylists(): array {
-        $stmt = $this->pdo->prepare("SELECT * FROM playlist INNER JOIN user2playlist on playlist.id = user2playlist.id_pl where user2playlist.id_user = :id_user");
-        $stmt->bindValue(':id_user', $_SESSION['User']['id'], PDO::PARAM_INT);
-        
+        $stmt;
+        if ($_SESSION['User']['role'] == 100){
+            $stmt = $this->pdo->prepare("SELECT * FROM playlist"); 
+        }else{
+            $stmt = $this->pdo->prepare("SELECT * FROM playlist INNER JOIN user2playlist on playlist.id = user2playlist.id_pl where user2playlist.id_user = :id_user"); 
+            $stmt->bindValue(':id_user', $_SESSION['User']['id'], PDO::PARAM_INT);  
+        }   
+       
         $stmt->execute();
-
+        
         $playlists = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $playlist = new Playlist($row['id'], $row['nom']);
