@@ -211,8 +211,14 @@ class DeefyRepository{
                 $stmt->execute();
             }
         }
+
+        $stmt = $pdo->prepare("SELECT id_user as user from user2playlist where id_pl = :id_pl");
+        $stmt->bindValue(':id_pl', $playlistId, PDO::PARAM_INT);
+        $stmt->execute();
+        $user = $stmt->fetch()["user"];
+
         $stmt = $pdo->prepare("DELETE from user2playlist where id_user = :id_user and id_pl = :id_pl");
-        $stmt->bindValue(':id_user', $_SESSION['User']['id'], PDO::PARAM_INT);
+        $stmt->bindValue(':id_user', $user, PDO::PARAM_INT);
         $stmt->bindValue(':id_pl', $playlistId, PDO::PARAM_INT);
         $stmt->execute();
 
