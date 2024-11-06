@@ -9,7 +9,7 @@ DeefyRepository::setConfig( 'config.ini' );
 //$pl = $r->findPlaylistById(1);
 
 if (isset($_SESSION["User"])){
-    echo("Bienvenu ".$_SESSION["User"]['name']);
+    echo("Bienvenue ".$_SESSION["User"]['name']);
 }else{
     echo "Pas connecté";
 }
