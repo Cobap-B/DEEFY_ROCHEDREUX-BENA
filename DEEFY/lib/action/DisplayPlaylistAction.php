@@ -17,28 +17,32 @@ class DisplayPlaylistAction extends Action{
                                 text-align: center;                            }
                         </style>
                     </head>';
-        $pdo = DeefyRepository::getInstance();
-        $pl = $pdo->findAllPlaylists();
-        if(count($pl)==0){
-            $html .= "<p>Aucune playlist créer</p> <a href='?action=add-playlist'>Créer une playlist</a>";
+        if(!isset($_SESSION["User"])){
+            $html .= "<body><div> Il faut un compte </div><a href='?action=authentification'>Se connecter</a></body></html>";            
         }else{
-            $html .= '<body><form action="?action=playlist" method="post">
-            Playlist : <select name="Playlist" size="1">';
-            foreach($pl as $p){
-                $id = $p->__get("ID");
-                $name = $p->__get("nom");
-                $html .= "<option value='$id'> $name </option>"; 
-            }
-            $html .= '</select>';
-            $html .= '<input type="submit" value="Visualiser"></form>';
-            if ($this->http_method === "GET") {          
-                //rien
+            $pdo = DeefyRepository::getInstance();
+            $pl = $pdo->findAllPlaylists();
+            if(count($pl)==0){
+                $html .= "<p>Aucune playlist créer</p> <a href='?action=add-playlist'>Créer une playlist</a>";
             }else{
-                $playlist = $pdo->findPlaylistById($_POST["Playlist"]);
-                $render = new AudioListRender($playlist);
-                $html.=" <body>
-                            {$render->render(2)}
-                        </body>";
+                $html .= '<body><form action="?action=playlist" method="post">
+                Playlist : <select name="Playlist" size="1">';
+                foreach($pl as $p){
+                    $id = $p->__get("ID");
+                    $name = $p->__get("nom");
+                    $html .= "<option value='$id'> $name </option>"; 
+                }
+                $html .= '</select>';
+                $html .= '<input type="submit" value="Visualiser"></form>';
+                if ($this->http_method === "GET") {          
+                    //rien
+                }else{
+                    $playlist = $pdo->findPlaylistById($_POST["Playlist"]);
+                    $render = new AudioListRender($playlist);
+                    $html.=" <body>
+                                {$render->render(2)}
+                            </body>";
+                }
             }
         }
         

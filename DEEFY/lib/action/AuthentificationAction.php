@@ -26,11 +26,33 @@ class AuthentificationAction extends Action {
                             Mot de passe : <input type="password" name="mdp"><br>
                             <br>
                             <input type="submit" value="Envoyer">
+                            <br><br><br><br>
+                            <input type="submit" name="Deco" value="Déconnexion">
                         </form>
                     </body>
                 </html>
             FIN;
         } else {
+            if (isset($_POST["Deco"])){
+                session_destroy();
+                return <<<FIN
+                <!DOCTYPE html>
+                <html lang="fr">
+                    <head>
+                        <meta charset="UTF-8">
+                        <style>
+                            body {
+                                color: white;
+                                text-align: center;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        Déconnexion réussite !
+                    </body>
+                </html>
+                FIN;
+            }
             $nom = filter_var($_POST['nom'], FILTER_SANITIZE_EMAIL);
             $mdp = $_POST['mdp'];
 
