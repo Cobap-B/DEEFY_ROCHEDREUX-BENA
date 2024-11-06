@@ -38,16 +38,19 @@ class DeefyRepository{
 
     public function signIn(string $user, string $mdp){
         $res = "Echec";
-        $min = 10;
-
 
         $bd = $this->pdo;
+
         $r = $bd->prepare('SELECT passwd FROM User WHERE email = ?');
         $r->bindParam(1,$user);
         $r->execute();
         $d = $r->fetchall(PDO::FETCH_ASSOC);
 
-        if((strlen($mdp) >= $min)&&(sizeof($d)==0)){
+        if((strlen($mdp) >= 10)&&(sizeof($d)==0)
+        && preg_match("#[\d]#", $mdp)
+        && preg_match("#[\W]#", $mdp)
+        && preg_match("#[\a-z]#", $mdp)
+        && preg_match("#[\A-Z]#", $mdp)){
     
             $hash = password_hash($mdp, PASSWORD_DEFAULT,['cost'=>10]); //hash
         
@@ -59,14 +62,16 @@ class DeefyRepository{
             if($r->execute()){
                 $res = "Bienvenu $user";
             }
+
+            
+            $data['role'] = 1;
+            $id = $bd->lastInsertId();
+            $_SESSION['User']['id']=$id;
+            $_SESSION['User']['name']=$user;
+            $_SESSION['User']['role']=$data['role'];
         }
         
-        //A changer
-        $data['role'] = 1;
-        $id = $bd->lastInsertId();
-        $_SESSION['User']['id']=$id;
-        $_SESSION['User']['name']=$user;
-        $_SESSION['User']['role']=$data['role'];
+        
         return $res;
     }
 
