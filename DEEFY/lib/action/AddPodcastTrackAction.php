@@ -64,7 +64,7 @@ class AddPodcastTrackAction extends Action {
                             
                             $pdo = DeefyRepository::getInstance();
                             $id = $pdo->findLastIdTrack() + 1;
-                            $track = new PodcastTrack($id, $name, "audio/" . $_FILES['audio']['name']);
+                            $track = new PodcastTrack($id, $name, $_FILES['audio']['name']);
     
                             $playlist->addPiste($track);
                             $_SESSION['Playlist'] = serialize($playlist);

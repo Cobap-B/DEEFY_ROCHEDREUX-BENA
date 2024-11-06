@@ -25,8 +25,9 @@ class PodcastTrackRender extends AudioTrackRender
     //Méthode pour le rendu format long
     public function renderLong(): string
     {
+        echo " | ".$this->album->nomFichier." | ";
         return '
-        <div class="podcast long" style="width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center;">
+        <div class="podcast long" style="align-items: center; justify-content: center;">
             <div>
                 <h2>Infos sur le podcast :</h2>
                 <pre>' . $this->album->__toString() . '</pre>

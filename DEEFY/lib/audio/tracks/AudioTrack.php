@@ -7,7 +7,7 @@ abstract class AudioTrack{
     protected int $ID;
     protected string $titre;
     protected string $artiste;
-    protected string $année;
+    protected string $annee;
     protected string $genre; 
     protected int $duree;  
     protected string $nomFichier;
@@ -16,16 +16,18 @@ abstract class AudioTrack{
         $this->ID = $id;
         $this->titre = $titre;
         $this->nomFichier = $nom;
+        $this->artiste = "";
+        $this->annee = "";
         $this->duree = 1;
         $this->genre = "";
     }
 
     function __toString(): string {
         return sprintf(
-            "AudioTrack [Titre: %s, Artiste: %s, Année: %s, Genre: %s, Durée: %d sec, Nom de fichier: %s]",
+            "AudioTrack Titre: %s, Artiste: %s\n Année: %s\n Genre: %s\n Durée: %d sec\n Nom de fichier: %s",
             $this->titre,
             $this->artiste ?: "Inconnu",
-            $this->année ?: "Inconnue",
+            $this->annee ?: "Inconnue",
             $this->genre ?: "Non spécifié",
             $this->duree,
             $this->nomFichier
