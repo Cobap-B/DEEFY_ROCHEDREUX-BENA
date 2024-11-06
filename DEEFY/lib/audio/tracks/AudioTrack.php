@@ -20,9 +20,18 @@ abstract class AudioTrack{
         $this->genre = "";
     }
 
-    function __toString():string{
-        return  json_encode($this);
+    function __toString(): string {
+        return sprintf(
+            "AudioTrack [Titre: %s, Artiste: %s, Année: %s, Genre: %s, Durée: %d sec, Nom de fichier: %s]",
+            $this->titre,
+            $this->artiste ?: "Inconnu",
+            $this->année ?: "Inconnue",
+            $this->genre ?: "Non spécifié",
+            $this->duree,
+            $this->nomFichier
+        );
     }
+
 
     public function  __get(string $at):mixed{
         if (property_exists ($this, $at)) return $this->$at;
