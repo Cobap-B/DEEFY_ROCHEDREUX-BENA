@@ -27,7 +27,7 @@ class Dispatcher{
             </head>
             <body>
                 <div class="container">
-                    <h1 class="text-primary">DeffyApp</h1>
+                    <h1 class="text-primary">DeefyApp</h1>
                     <nav>
                         <ul class="nav">
                             <li class="nav-item"><a class="nav-link" href="?action=default">Accueil</a></li>

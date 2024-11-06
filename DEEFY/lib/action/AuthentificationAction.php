@@ -17,13 +17,23 @@ class AuthentificationAction extends Action {
                                 color: white;
                                 text-align: center;
                             }
+
+                            form {
+                            display: inline-block;
+                            }
+
+                            label {
+                            display: block;
+                            float: left;
+                            width : 150px;
+                        }
                         </style>
                     </head>
                     <body>
                         <div> Se connecter : </div>
                         <form action="?action=authentification" method="post">
-                            Identifiant : <input type="text" name="nom"><br>
-                            Mot de passe : <input type="password" name="mdp"><br>
+                            <label>Identifiant :</label> <input type="text" name="nom"><br>
+                            <label>Mot de passe :</label> <input type="password" name="mdp"><br>
                             <br>
                             <input type="submit" value="Envoyer">
                             <br><br><br><br>

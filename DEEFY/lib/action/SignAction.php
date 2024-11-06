@@ -20,6 +20,13 @@ class SignAction extends Action{
                         form {
                             display: inline-block;
                         }
+
+                        label {
+                            display: block;
+                            float: left;
+                            width : 150px;
+                        }
+
                     </style> 
                     
                     <title> Compte </title>
@@ -28,9 +35,9 @@ class SignAction extends Action{
                     <div>
                         <h2>Creer un compte</h2>
                         <form action="?action=sign" method="post">
-                            Identifiant : <input type="text" name="nom"><br>
-                            Mot de passe : <input type="password" name="mdp"><br>
-                            Confirmer Mot de passe : <input type="password" name="mdp2"><br>
+                            <label>Identifiant :</label> <input type="text" name="nom"><br><br>
+                            <label>Mot de passe :</label> <input type="password" name="mdp"><br><br>
+                            <label>Confirmer Mot de passe :</label> <input type="password" name="mdp2"><br><br>
                             <br>
                             <input type="submit" value="Envoyer">
                         </form>
